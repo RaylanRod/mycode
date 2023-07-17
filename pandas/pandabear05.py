@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import pandas as pd
+import xlsxwriter
 
 def main():
     # create a dataframe ciscocsv
@@ -21,9 +22,9 @@ def main():
     
     ## export to Excel
     ## do not include index number to xls
-    ciscodf.to_excel("combined_ciscodata.xls", index=False)
+    ciscodf.to_excel("combined_ciscodata.xls", index =False, engine='xlsxwriter')
     ## do not include index number to xlsx
-    ciscodf.to_excel("combined_ciscodata.xlsx", index=False)
+    ciscodf.to_excel("combined_ciscodata.xlsx", index=False, engine='xlsxwriter')
     
     ## create a python dictionary
     ## do not include index number

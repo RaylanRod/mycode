@@ -1,6 +1,11 @@
+#!/usr/bin/env python3
 import random
 from sys import exit
 import time
+
+# still need to add the garage an its weapon witch is baseball bat
+# need to work on the safe and the cobination and finish the shed.
+# should be able to submit after
 
 # Game data
 rooms = {

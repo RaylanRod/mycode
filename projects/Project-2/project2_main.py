@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
+
+from tabulate import tabulate
 import random
 from sys import exit
 import time
 
+
 # still need to add the garage an its weapon witch is baseball bat
 # need to work on the safe and the cobination and finish the shed.
 # should be able to submit after
+# add a map
 
 # Game data
 rooms = {
@@ -241,6 +245,21 @@ def play_again():
         main()
 
 
+def print_map():
+    """Print the map with room connections"""
+    headers = ['Room', 'North', 'South', 'East', 'West']
+    rows = []
+
+    for room, connections in rooms.items():
+        north = connections.get('north', '-')
+        south = connections.get('south', '-')
+        east = connections.get('east', '-')
+        west = connections.get('west', '-')
+        rows.append([room, north, south, east, west])
+
+    print(tabulate(rows, headers=headers, tablefmt="grid"))
+
+
 def main():
     """Main game loop"""
     global current_room, player_health, enemy_health, life
@@ -249,7 +268,7 @@ def main():
     player_health = 100  # Reset player health
 
     show_instructions()  # Show instructions to the player
-
+    print_map()  # Prints the map to the console
     # Flag to track if the paper has been picked up
     paper_picked_up = False
 

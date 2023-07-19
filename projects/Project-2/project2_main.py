@@ -1,73 +1,31 @@
-#!/usr/bin/env python3
-
-from tabulate import tabulate
 import random
-from sys import exit
 import time
 
-
-# still need to add the garage an its weapon witch is baseball bat
-# need to work on the safe and the cobination and finish the shed.
-# should be able to submit after
-# add a map
+from tabulate import tabulate
 
 # Game data
 rooms = {
-    'Hall': {
-        'south': 'Kitchen',
-        'east': 'Dining Room',
-        'item': 'silver key'
-    },
-    'Kitchen': {
-        'north': 'Hall',
-        'item': 'machete',
-        'enemy': 'Goblin'
-    },
+    'Hall': {'south': 'Kitchen', 'east': 'Dining Room', 'item': 'silver key'},
+    'Kitchen': {'north': 'Hall', 'south': 'Garage', 'item': 'machete', 'enemy': 'Goblin'},
     'Dining Room': {
-        'west': 'Hall',
-        'south': 'Garden',
-        'north': 'Bedroom',
-        'east': 'Patio',
+        'west': 'Hall', 'south': 'Garden', 'north': 'Bedroom', 'east': 'Patio',
         'item': 'potion',
-        'doors': {
-            'east': {
-                'locked': True,
-                'key': 'silver key'
-            },
-            'south': {
-                'locked': True,
-                'key': 'garden key'
-            }
-        }
+        'doors': {'east': {'locked': True, 'key': 'silver key'}, 'south': {'locked': True, 'key': 'garden key'}}
     },
-    'Garden': {
-        'north': 'Dining Room',
-        'enemy': 'Monster'
-    },
-    'Patio': {
-        'west': 'Dining Room',
-        'item': 'garden key',
-        'south': 'Path Way To Shed'
-    },
-    'Bedroom': {
-        'item': 'paper',
-        'combination': 'rr4590',
-        'south': 'Dining Room'
-    },
+    'Garden': {'north': 'Dining Room', 'enemy': 'Monster'},
+    'Patio': {'west': 'Dining Room', 'item': 'garden key', 'south': 'Path Way To Shed'},
+    'Bedroom': {'item': 'paper', 'combination': '4321', 'south': 'Dining Room',
+                'east': 'Office', 'west': 'Bath Room', 'north': 'Bedroom 2'},
     'Shed': {
-        'combination': 'rr4590',
-        'north': 'patio',
-        'safe': {
-            'locked': True,
-            'combination': 't555r5',
-            'item': 'bow and arrow'
-        },
+        'combination': '4321', 'north': 'Patio',
+        'safe': {'locked': True, 'combination': '1234', 'item': 'bow and arrow'},
         'item': 'safe key'
     },
-    'Path Way To Shed': {
-        'enemy': 'Skeleton',
-        'south': 'Shed'
-    }
+    'Path Way To Shed': {'enemy': 'Skeleton', 'south': 'Shed'},
+    'Garage': {'north': 'Kitchen', 'item': 'baseball bat'},
+    'Office': {'west': 'Bedroom', 'item': 'laptop'},
+    'Bath Room': {'east': 'Bedroom', 'enemy': 'Goblin'},
+    'Bedroom 2': {'south': 'Bedroom', 'item': 'charging cellphone'}
 }
 
 # Player inventory, which is initially empty
@@ -79,39 +37,22 @@ life = 3
 
 # Dictionary of enemies
 enemies = {
-    'Goblin': {
-        'health': 50,
-        'attack': 10
-    },
-    'Skeleton': {
-        'health': 80,
-        'attack': 15
-    },
-    'Monster': {
-        'health': 150,
-        'attack': 20
-    }
+    'Goblin': {'health': 50, 'attack': 10},
+    'Skeleton': {'health': 80, 'attack': 15},
+    'Monster': {'health': 150, 'attack': 20}
 }
 
 items = {
-    'bow and arrow': {
-        'description': 'A powerful weapon that doubles your damage',
-        'damage_multiplier': 2.3
-    },
-    'machete': {
-        'description': 'A sharp weapon that increases your damage',
-        'damage_multiplier': 1.80
-    },
-    'baseball bat': {
-        'description': 'A sturdy weapon that slightly increases your damage',
-        'damage_multiplier': 1.25
-    }
+    'bow and arrow': {'description': 'A powerful weapon that doubles your damage', 'damage_multiplier': 3.0},
+    'machete': {'description': 'A sharp weapon that increases your damage', 'damage_multiplier': 2.0},
+    'baseball bat': {'description': 'A sturdy weapon that slightly increases your damage', 'damage_multiplier': 1.25}
 }
+
+current_room = 'Hall'  # Player start location
 
 
 def show_instructions():
     """Show the game instructions when called"""
-    # Print a main menu and the commands
     print('''
     RPG Game
     ========
@@ -119,25 +60,20 @@ def show_instructions():
       go [direction]
       get [item]
       attack [enemy]
-      Direction Key: [north,south,east,west]
+      Direction Key: [north, south, east, west]
     ''')
 
 
 def show_status():
     """Determine the current status of the player"""
-    # Print the player's current location
     print('---------------------------')
-    print('You are in the ' + current_room)
-    # Print what the player is carrying
+    print('You are in the', current_room)
     print('Inventory:', inventory)
-    # print how many lives left
-    print(f"lives left: {life}")
-    # Check if there's an item in the room and print it
+    print(f"Lives left: {life}")
     if 'item' in rooms[current_room] and 'item' not in inventory:
-        print('You see a ' + rooms[current_room]['item'])
-    # Check if there's an enemy in the room and print it
+        print('You see a', rooms[current_room]['item'])
     if 'enemy' in rooms[current_room]:
-        print('You are facing a ' + rooms[current_room]['enemy'])
+        print('You are facing a', rooms[current_room]['enemy'])
     print("---------------------------")
 
 
@@ -147,9 +83,9 @@ def unlock_door(room, direction):
         door = rooms[room]['doors'][direction]
         if door['locked'] and door['key'] in inventory:
             door['locked'] = False
-            print('You unlocked the door with the ' + door['key'] + '.')
+            print('You unlocked the door with the', door['key'] + '.')
         elif door['locked']:
-            print('The door is locked. You need a ' + door['key'] + ' to unlock it.')
+            print('The door is locked. You need a', door['key'] + ' to unlock it.')
         else:
             print('The door is already unlocked.')
     else:
@@ -158,63 +94,61 @@ def unlock_door(room, direction):
 
 def find_combination(room):
     """Find the combination for the safe in the specified room"""
-    if 'combination' and 'safe' in rooms[room]:
+    if 'safe' in rooms[room]:
         if 'safe key' in inventory:
-            input("Enter the combination to the safe: ")
+            print(
+                f"The key has a tag on it that reads: {rooms[room]['safe']['combination']}, "
+                f"could this be the combination?")
             while True:
-                safe_code = input()
+                safe_code = input("Enter the combination to the safe: ")
                 if safe_code == rooms[room]['safe']['combination']:
-                    print(f"The {safe_code} to the safe is Correct")
-                    return safe_code  # Correct combination entered, exit the loop
+                    print(f"The code: {safe_code} is correct.")
+                    print(f"Congratulations you have obtained a bow and arrow, this item will be added"
+                          f"to your inventory")
+                    inventory.append("bow and arrow")
+                    return safe_code
                 else:
                     print('Wrong combination!!')
-    elif 'combination' in rooms[room]:
-        return rooms[room]['combination']
     else:
         print('There is no combination in this room.')
 
 
 def handle_combat(enemy):
     """Handle combat with the specified enemy"""
-    global player_health, enemy_health, life  # Declare player_health as global
+    global player_health, life
     enemy_health = enemies[enemy]['health']
-    print('You are facing a ' + enemy + '! Get ready to fight!')
+    print('You are facing a', enemy + '! Get ready to fight!')
     print('===================')
 
     while enemy_health > 0 and player_health > 0:
-        # Player's turn
         player_damage = player_attack()
         enemy_health -= player_damage
-        print('You attacked the ' + enemy + ' for ' + str(player_damage) + ' damage.')
-        time.sleep(1)  # Add a delay of 1 second
+        print('You attacked the', enemy, 'for', player_damage, 'damage.')
+        time.sleep(1)
 
         if enemy_health <= 0:
-            print('You defeated the ' + enemy + '! Congratulations!')
+            print('You defeated the', enemy + '! Congratulations!')
             break
 
-        # Enemy's turn
         enemy_damage = enemy_attack(enemy)
         player_health -= enemy_damage
-        print('The ' + enemy + ' attacked you for ' + str(enemy_damage) + ' damage.')
-        time.sleep(1)  # Add a delay of 1 second
+        print('The', enemy, 'attacked you for', enemy_damage, 'damage.')
+        time.sleep(1)
 
         if player_health <= 0:
-            print('The ' + enemy + ' defeated you!')
+            print('The', enemy, 'defeated you!')
             life -= 1
             play_again()
 
-    enemies[enemy]['health'] = enemy_health
+    return enemy_health
 
 
-# Function to calculate the damage dealt by the player
 def player_attack():
     """Calculate the damage dealt by the player"""
-    # Generate a random attack value between 70% and 100% of the player's base attack
     base_attack = 10
     attack_modifier = random.uniform(0.7, 1.0)
     damage = int(base_attack * attack_modifier)
 
-    # Check if the player has any weapon in their inventory and apply the corresponding damage multiplier
     for weapon in items:
         if weapon in inventory:
             damage *= items[weapon]['damage_multiplier']
@@ -225,7 +159,6 @@ def player_attack():
 
 def enemy_attack(enemy):
     """Calculate the damage dealt by the enemy"""
-    # Generate a random attack value between 80% and 100% of the enemy's base attack
     base_attack = enemies[enemy]['attack']
     attack_modifier = random.uniform(0.8, 1.0)
     damage = int(base_attack * attack_modifier)
@@ -233,14 +166,17 @@ def enemy_attack(enemy):
 
 
 def play_again():
-    if life == 0:
-        print("YOU HAVE 0 LIFE - GAME OVER!")
+    global life
+    if life <= 0:
+        print("YOU HAVE 0 LIVES - GAME OVER!")
         try_again = input("Do you want to play again? (yes/no): ")
         if try_again.lower() == 'yes':
+            inventory.clear()   # clear the inventory
+            life = 3
             main()
         else:
             print("Thanks for playing! Goodbye.")
-            quit()  # exit the application
+            exit()
     else:
         main()
 
@@ -262,15 +198,16 @@ def print_map():
 
 def main():
     """Main game loop"""
-    global current_room, player_health, enemy_health, life
+    global current_room, player_health, life
 
     current_room = 'Hall'  # Player start location
     player_health = 100  # Reset player health
 
     show_instructions()  # Show instructions to the player
     print_map()  # Prints the map to the console
-    # Flag to track if the paper has been picked up
     paper_picked_up = False
+    retry_shed_combination = False
+    shed_access = None
 
     while True:
         show_status()
@@ -313,13 +250,17 @@ def main():
 
         elif move[0] == 'attack':
             if 'enemy' in rooms[current_room] and move[1] == rooms[current_room]['enemy']:
-                handle_combat(move[1])
+                enemy = rooms[current_room]['enemy']
+                enemy_health = handle_combat(enemy)  # Assign the updated enemy_health value
+                rooms[current_room]['enemy'] = enemy  # Update the enemy's health in the rooms dictionary
+                if enemy_health <= 0:
+                    del rooms[current_room]['enemy']  # Remove enemy if defeated
             else:
                 print('There is no enemy to attack.')
 
         if 'enemy' in rooms[current_room]:
             enemy = rooms[current_room]['enemy']
-            handle_combat(enemy)
+            enemy_health = handle_combat(enemy)
             del rooms[current_room]['enemy']
             if enemy == 'Monster' and enemy_health <= 0:
                 print('You defeated the Monster and escaped the house... YOU WIN!')
@@ -335,17 +276,31 @@ def main():
                 print('You already picked up the paper.')
 
         if current_room == 'Shed' and 'combination' in rooms['Shed']:
-            safe_combination = rooms['Shed']['safe']['combination']  # Access the combination from the room's dictionary
-            print(
-                f"You found a safe in the shed!.. Your safe key has a tag that has the numbers "
-                f"{safe_combination} try it")
-            find_combination('Shed')
+            if retry_shed_combination:
+                print("You failed to open the shed. You should try again or find the combination.")
+                break
+
+            if shed_access != rooms['Shed']['combination']:
+                shed_access = input("What is the combination to the Shed Door?  ")
+                if shed_access == rooms['Shed']['combination']:
+                    print("That is the correct code")
+                    print("You found a safe in the shed!")
+                    find_combination('Shed')
+                else:
+                    print("That is the wrong combination!!")
+                    try_again = input("Would you like to try again? or go find the combination? Type: try or go")
+                    if try_again.lower() == 'go':
+                        retry_shed_combination = True
+                    else:
+                        break
+            else:
+                find_combination('Shed')
 
         if current_room == 'Shed' and 'bow and arrow' in inventory:
             print('You already found the bow and arrow in the shed.')
 
-        if current_room == 'Shed' and 'item' in rooms['Shed']['safe'] and move[0] == 'get' and \
-                move[1] == 'bow and arrow':
+        if current_room == 'Shed' and 'item' in rooms['Shed']['safe'] and move[0] == 'get' \
+                and move[1] == 'bow and arrow':
             if 'combination' not in rooms['Shed']['safe']:
                 print('You need to find the combination to the safe first.')
             else:
@@ -367,11 +322,15 @@ def main():
 
         if current_room == 'Garden' and 'Monster' in rooms['Garden']:
             enemy = rooms['Garden']['enemy']
-            handle_combat(enemy)
+            enemy_health = handle_combat(enemy)
             del rooms['Garden']['enemy']
             if enemy == 'Monster' and enemy_health <= 0:
                 print('You defeated the Monster and escaped the house... YOU WIN!')
                 break
+
+        if current_room == 'Shed' and retry_shed_combination:
+            print('You decided to go find the combination instead.')
+            break
 
     play_again()
 

@@ -13,13 +13,19 @@ BASE_URL = 'http://api.openweathermap.org/data/2.5/weather'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    # Check if the request method is POST
     if request.method == 'POST':
+        # If it's a POST request, get the 'city' data from the form
         city = request.form['city']
+        # Call the get_weather() function with the 'city' data and return the result
         return get_weather(city)
-    return render_template('get_city.html')
+    else:
+        # If it's not a POST request (i.e., it's a GET request), render the 'get_city.html' template
+        # without trying to access form data, as there won't be any form data in a GET request
+        return render_template('get_city.html')
 
 
-@app.route('/weather', methods=['GET', 'POST'])
+@app.route('/weather', methods=['POST'])
 def weather():
     if request.method == 'POST':
         city = request.form['city']
@@ -45,4 +51,4 @@ def get_weather(city):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=2224, debug=True)

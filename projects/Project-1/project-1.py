@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """ This is an animal quizz for you to test your knowledge
 on certain animals, characteristics would be given to the user and the user
 would have to choose which animal it is"""
@@ -22,18 +23,22 @@ def main():
     # if the user input is "q" then quit the quizz
     if user_choice.lower() == "q":
         print("You have chosen to quit the quizz.")
-        return
+        quit()
 
-    # start the first quizz, assign the results to quit_quizz
-    # if quit_quizz has a value of q than stop the application
-    # otherwise move on to the next animal quizz
-    quit_quizz = start_quizz("Elephant", "c", "C", 2)
-    if quit_quizz == "q":
-        return
-    else:
-        print("Next Animal:")
-        print("_____________")
-        start_quizz("Penguin", "d", "D", 2)
+    while True:
+        # start the first quizz, assign the results to quit_quizz
+        # if quit_quizz has a value of q than stop the application
+        # otherwise move on to the next animal quizz
+        quit_quizz = start_quizz("Elephant", "c", "C", 2)
+        if quit_quizz == "q":
+            quit()
+        else:
+            print("Next Animal:")
+            print("_____________")
+            start_quizz("Penguin", "d", "D", 2)
+        try_again = input("Would you like to play again: y/N > ")   # Try again logic
+        if try_again.upper().strip() == 'N':  # if the user input is N than quit the application
+            break
 
 
 # function to handle the quizzes and
